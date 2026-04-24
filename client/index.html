@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,27 +8,42 @@
   <meta name="description" content="Process directed graph edges and extract tree hierarchies with cycle detection." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:      #111318;
-      --panel:   #181b22;
-      --surface: #1e2129;
-      --line:    #2a2e3a;
-      --line2:   #353a48;
-      --text:    #e9ecf3;
-      --dim:     #6b7280;
-      --accent:  #3b82f6;
-      --green:   #22c55e;
-      --red:     #ef4444;
-      --amber:   #f59e0b;
-      --sans:    "Space Grotesk", system-ui, sans-serif;
-      --mono:    "JetBrains Mono", monospace;
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    html, body { height: 100%; font-size: 15px; }
+    :root {
+      --bg: #07050f;
+      --panel: #0f0a1e;
+      --surface: #150f28;
+      --line: #221840;
+      --line2: #2e2058;
+      --text: #ede8fc;
+      --dim: #6b5b8a;
+      --accent: #a855f7;
+      --accent2: #7c3aed;
+      --lime: #e879f9;
+      --rose: #f472b6;
+      --amber: #818cf8;
+      --green: #4ade80;
+      --glow: rgba(168, 85, 247, 0.18);
+      --sans: "Space Grotesk", system-ui, sans-serif;
+      --mono: "JetBrains Mono", monospace;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-size: 15px;
+    }
 
     body {
       background: var(--bg);
@@ -36,9 +52,11 @@
       -webkit-font-smoothing: antialiased;
       display: flex;
       flex-direction: column;
+      background-image: radial-gradient(ellipse 70% 40% at 50% -5%, rgba(168, 85, 247, 0.12) 0%, transparent 60%);
       min-height: 100vh;
     }
 
+    /* ─ Topbar ─ */
     .topbar {
       height: 52px;
       border-bottom: 1px solid var(--line);
@@ -61,13 +79,18 @@
     }
 
     .topbar-logo-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--accent);
+      box-shadow: 0 0 10px var(--accent), 0 0 24px rgba(168, 85, 247, 0.4);
     }
 
-    .topbar-sep { color: var(--line2); font-size: 18px; font-weight: 300; }
+    .topbar-sep {
+      color: var(--line2);
+      font-size: 18px;
+      font-weight: 300;
+    }
 
     .topbar-tag {
       font-size: 11px;
@@ -97,10 +120,19 @@
       color: var(--dim);
     }
 
-    .id-chip span { color: var(--accent); font-weight: 500; }
+    .id-chip span {
+      color: var(--accent);
+      font-weight: 500;
+    }
 
-    .workspace { display: flex; flex: 1; overflow: hidden; }
+    /* ─ Main layout ─ */
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
 
+    /* ─ Sidebar / input panel ─ */
     .sidebar {
       width: 340px;
       flex-shrink: 0;
@@ -149,11 +181,17 @@
       padding: 12px 14px;
       resize: vertical;
       outline: none;
-      transition: border-color 0.15s;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-    textarea#edges-input::placeholder { color: var(--dim); }
-    textarea#edges-input:focus { border-color: var(--accent); }
+    textarea#edges-input::placeholder {
+      color: var(--dim);
+    }
+
+    textarea#edges-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
 
     .format-hint {
       margin-top: 8px;
@@ -162,7 +200,11 @@
       font-family: var(--mono);
     }
 
-    .examples-row { display: flex; flex-direction: column; gap: 6px; }
+    .examples-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
     .ex-btn {
       background: var(--surface);
@@ -175,44 +217,64 @@
       padding: 8px 12px;
       cursor: pointer;
       text-align: left;
-      transition: border-color 0.15s, color 0.15s;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .ex-btn:hover { border-color: var(--accent); color: var(--text); }
+    .ex-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(34, 211, 238, 0.06);
+    }
 
     .ex-btn code {
       font-family: var(--mono);
       font-size: 10px;
-      color: var(--dim);
+      color: var(--accent);
+      opacity: 0.7;
     }
 
-    .actions-row { display: flex; gap: 8px; }
+    .actions-row {
+      display: flex;
+      gap: 8px;
+    }
 
     .btn-resolve {
       flex: 1;
-      background: var(--accent);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent), #c026d3);
+      color: #fdf4ff;
       border: none;
       border-radius: 8px;
       font-family: var(--sans);
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       padding: 11px 18px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: background 0.15s, transform 0.1s;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 4px 18px rgba(168, 85, 247, 0.35);
       letter-spacing: -0.01em;
     }
 
-    .btn-resolve:hover { background: #2563eb; }
-    .btn-resolve:active { transform: scale(0.98); }
-    .btn-resolve:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-resolve:hover {
+      background: linear-gradient(135deg, #b86ef9, #d946ef);
+      box-shadow: 0 6px 28px rgba(168, 85, 247, 0.52);
+    }
+
+    .btn-resolve:active {
+      transform: scale(0.98);
+    }
+
+    .btn-resolve:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
 
     .btn-clear {
       background: transparent;
@@ -227,11 +289,22 @@
       transition: background 0.15s, color 0.15s;
     }
 
-    .btn-clear:hover { background: var(--surface); color: var(--text); }
+    .btn-clear:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
 
-    .identity-block { display: flex; flex-direction: column; gap: 8px; }
+    .identity-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-    .id-row { display: flex; align-items: baseline; gap: 8px; }
+    .id-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
 
     .id-key {
       font-size: 10px;
@@ -246,11 +319,16 @@
     .id-val {
       font-family: var(--mono);
       font-size: 12px;
-      color: var(--text);
+      color: var(--accent);
       word-break: break-all;
     }
 
-    .main-panel { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    /* ─ Main / results panel ─ */
+    .main-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px;
+    }
 
     .state-empty {
       height: 100%;
@@ -274,11 +352,13 @@
       font-size: 22px;
     }
 
-    .state-empty p { font-size: 13px; }
+    .state-empty p {
+      font-size: 13px;
+    }
 
     .error-strip {
-      background: rgba(239,68,68,0.08);
-      border: 1px solid rgba(239,68,68,0.25);
+      background: rgba(251, 113, 133, 0.08);
+      border: 1px solid rgba(251, 113, 133, 0.25);
       border-radius: 8px;
       padding: 12px 16px;
       color: #fca5a5;
@@ -299,7 +379,9 @@
       font-size: 13px;
     }
 
-    #loader.visible { display: flex; }
+    #loader.visible {
+      display: flex;
+    }
 
     .spinner {
       width: 18px;
@@ -310,8 +392,13 @@
       animation: spin 0.7s linear infinite;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
+    /* ─ Stats row ─ */
     .stats-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -336,9 +423,19 @@
       letter-spacing: -0.03em;
     }
 
-    .stat-num.c { color: var(--accent); }
-    .stat-num.r { color: var(--red); }
-    .stat-num.l { color: var(--green); }
+    .stat-num.c {
+      color: var(--accent);
+    }
+
+    .stat-num.r {
+      color: var(--rose);
+    }
+
+    .stat-num.l {
+      color: var(--lime);
+    }
+
+    .stat-info {}
 
     .stat-name {
       font-size: 11px;
@@ -348,6 +445,7 @@
       color: var(--dim);
     }
 
+    /* ─ Section heading ─ */
     .sec-head {
       font-size: 11px;
       font-weight: 600;
@@ -360,8 +458,14 @@
       gap: 8px;
     }
 
-    .sec-head::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .sec-head::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
 
+    /* ─ Tree cards ─ */
     .trees-wrap {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -374,17 +478,33 @@
       border: 1px solid var(--line);
       border-radius: 10px;
       overflow: hidden;
-      animation: up 0.22s ease both;
-      transition: border-color 0.15s;
+      animation: up 0.25s ease both;
+      transition: border-color 0.15s, transform 0.15s;
     }
 
-    .tree-card:hover { border-color: var(--line2); }
-    .tree-card.cyclic { border-color: rgba(239,68,68,0.3); }
-    .tree-card.cyclic:hover { border-color: rgba(239,68,68,0.5); }
+    .tree-card:hover {
+      border-color: rgba(168, 85, 247, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .tree-card.cyclic {
+      border-color: rgba(244, 114, 182, 0.3);
+    }
+
+    .tree-card.cyclic:hover {
+      border-color: rgba(244, 114, 182, 0.55);
+    }
 
     @keyframes up {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .card-top {
@@ -395,14 +515,18 @@
       justify-content: space-between;
     }
 
-    .card-root { display: flex; align-items: center; gap: 10px; }
+    .card-root {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
     .root-circle {
       width: 30px;
       height: 30px;
       border-radius: 50%;
-      background: var(--accent);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent), #c026d3);
+      color: #fdf4ff;
       font-weight: 700;
       font-size: 13px;
       display: flex;
@@ -410,10 +534,21 @@
       justify-content: center;
     }
 
-    .root-circle.cyc { background: var(--red); }
+    .root-circle.cyc {
+      background: linear-gradient(135deg, var(--rose), #db2777);
+      color: #fff;
+    }
 
-    .root-name { font-weight: 600; font-size: 14px; }
-    .root-sub  { font-size: 11px; color: var(--dim); margin-top: 1px; }
+    .root-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .root-sub {
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 1px;
+    }
 
     .pill {
       display: inline-flex;
@@ -424,22 +559,24 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       padding: 3px 9px;
-      border-radius: 4px;
+      border-radius: 99px;
     }
 
     .pill-green {
-      background: rgba(34,197,94,0.12);
+      background: rgba(74, 222, 128, 0.12);
       color: var(--green);
-      border: 1px solid rgba(34,197,94,0.25);
+      border: 1px solid rgba(74, 222, 128, 0.28);
     }
 
     .pill-rose {
-      background: rgba(239,68,68,0.10);
-      color: var(--red);
-      border: 1px solid rgba(239,68,68,0.25);
+      background: rgba(244, 114, 182, 0.12);
+      color: var(--rose);
+      border: 1px solid rgba(244, 114, 182, 0.28);
     }
 
-    .card-body { padding: 14px 16px; }
+    .card-body {
+      padding: 14px 16px;
+    }
 
     .depth-bar-wrap {
       display: flex;
@@ -450,13 +587,19 @@
       color: var(--dim);
     }
 
-    .depth-track { flex: 1; height: 3px; background: var(--line); border-radius: 99px; overflow: hidden; }
+    .depth-track {
+      flex: 1;
+      height: 3px;
+      background: var(--line);
+      border-radius: 99px;
+      overflow: hidden;
+    }
 
     .depth-fill {
       height: 100%;
-      background: var(--accent);
+      background: linear-gradient(90deg, var(--accent), var(--lime));
       border-radius: 99px;
-      transition: width 0.5s ease;
+      transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .tree-ascii {
@@ -469,8 +612,15 @@
       overflow-x: auto;
     }
 
-    .t-node { display: block; white-space: nowrap; }
-    .t-conn { color: var(--dim); opacity: 0.5; }
+    .t-node {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .t-conn {
+      color: var(--dim);
+      opacity: 0.4;
+    }
 
     .t-name {
       display: inline-flex;
@@ -479,8 +629,8 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: var(--accent);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent), #c026d3);
+      color: #fdf4ff;
       font-size: 10px;
       font-weight: 700;
       vertical-align: middle;
@@ -490,7 +640,7 @@
     .cycle-msg {
       font-family: var(--mono);
       font-size: 12px;
-      color: var(--red);
+      color: var(--rose);
       opacity: 0.75;
       font-style: italic;
       padding: 10px 12px;
@@ -498,30 +648,40 @@
       border-radius: 6px;
     }
 
-    .tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    /* ─ Tags ─ */
+    .tag-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
 
     .tag {
       font-family: var(--mono);
       font-size: 11px;
       font-weight: 500;
       padding: 3px 9px;
-      border-radius: 4px;
+      border-radius: 5px;
     }
 
     .tag-r {
-      background: rgba(239,68,68,0.08);
-      color: #fca5a5;
-      border: 1px solid rgba(239,68,68,0.2);
+      background: rgba(244, 114, 182, 0.10);
+      color: #f9a8d4;
+      border: 1px solid rgba(244, 114, 182, 0.22);
     }
 
     .tag-a {
-      background: rgba(245,158,11,0.08);
-      color: #fcd34d;
-      border: 1px solid rgba(245,158,11,0.2);
+      background: rgba(129, 140, 248, 0.10);
+      color: #a5b4fc;
+      border: 1px solid rgba(129, 140, 248, 0.22);
     }
 
-    .none-note { font-size: 12px; color: var(--dim); font-style: italic; }
+    .none-note {
+      font-size: 12px;
+      color: var(--dim);
+      font-style: italic;
+    }
 
+    /* ─ JSON drawer ─ */
     .json-drawer {
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -546,8 +706,13 @@
       text-align: left;
     }
 
-    .json-drawer-head:hover { color: var(--text); }
-    .json-drawer-head svg { flex-shrink: 0; }
+    .json-drawer-head:hover {
+      color: var(--text);
+    }
+
+    .json-drawer-head svg {
+      flex-shrink: 0;
+    }
 
     .json-body {
       display: none;
@@ -560,183 +725,212 @@
       white-space: pre;
       max-height: 380px;
       overflow-y: auto;
-      color: #9ca3af;
+      color: #c4b5fd;
     }
 
-    .json-body.open { display: block; }
+    .json-body.open {
+      display: block;
+    }
 
-    .jk { color: #93c5fd; }
-    .js { color: #86efac; }
-    .jn { color: #fcd34d; }
-    .jb { color: #f9a8d4; }
-    .jz { color: var(--dim); }
+    .jk {
+      color: #d8b4fe;
+    }
+
+    .js {
+      color: #86efac;
+    }
+
+    .jn {
+      color: #fde68a;
+    }
+
+    .jb {
+      color: #f9a8d4;
+    }
+
+    .jz {
+      color: var(--dim);
+    }
 
     @media (max-width: 760px) {
-      .workspace { flex-direction: column; }
-      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--line); }
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .topbar-right { display: none; }
+      .workspace {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .topbar-right {
+        display: none;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<header class="topbar">
-  <div class="topbar-logo">
-    <div class="topbar-logo-dot"></div>
-    BFHL Tree Resolver
+  <header class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-dot"></div>
+      BFHL Tree Resolver
+    </div>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-tag">Bajaj Finserv Hiring Challenge</span>
+    <div class="topbar-right">
+      <div class="id-chip">user <span>abhinav_11112004</span></div>
+      <div class="id-chip">roll <span>RA2311056030185</span></div>
+    </div>
+  </header>
+
+  <div class="workspace">
+
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Edge Input</div>
+        <textarea id="edges-input" spellcheck="false"
+          placeholder="A->B, A->C, B->D&#10;or one per line:&#10;A->B&#10;B->C"></textarea>
+        <div class="format-hint">Format: X-&gt;Y (single uppercase letters)</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Examples</div>
+        <div class="examples-row">
+          <button class="ex-btn" id="ex1">
+            Basic Tree
+            <code>A→B, A→C, B→D</code>
+          </button>
+          <button class="ex-btn" id="ex2">
+            With Cycle
+            <code>A→B, B→C, C→A</code>
+          </button>
+          <button class="ex-btn" id="ex3">
+            Mixed / Complex
+            <code>multi-parent + dupes</code>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="actions-row">
+          <button class="btn-resolve" id="btn-submit">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+            Run
+          </button>
+          <button class="btn-clear" id="btn-clear">Reset</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section" style="flex:1;">
+        <div class="sidebar-label">Identity</div>
+        <div class="identity-block">
+          <div class="id-row">
+            <span class="id-key">Name</span>
+            <span class="id-val">abhinav_11112004</span>
+          </div>
+          <div class="id-row">
+            <span class="id-key">Email</span>
+            <span class="id-val">aj4350@srmist.edu.in</span>
+          </div>
+          <div class="id-row">
+            <span class="id-key">Roll</span>
+            <span class="id-val">RA2311056030185</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-panel" id="main-panel">
+      <div class="state-empty" id="state-empty">
+        <div class="state-empty-icon">⬡</div>
+        <p>Enter edges on the left and click <strong>Run</strong></p>
+      </div>
+
+      <div id="loader">
+        <div class="spinner"></div>
+        Processing edges…
+      </div>
+
+      <div id="results" style="display:none;"></div>
+    </main>
+
   </div>
-  <span class="topbar-sep">|</span>
-  <span class="topbar-tag">Bajaj Finserv Hiring Challenge</span>
-  <div class="topbar-right">
-    <div class="id-chip">user <span>abhinav_11112004</span></div>
-    <div class="id-chip">roll <span>RA2311056030185</span></div>
-  </div>
-</header>
 
-<div class="workspace">
+  <script>
+    const API_URL = "/bfhl";
 
-  <aside class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Edge Input</div>
-      <textarea
-        id="edges-input"
-        spellcheck="false"
-        placeholder="A->B, A->C, B->D&#10;or one per line:&#10;A->B&#10;B->C"
-      ></textarea>
-      <div class="format-hint">Format: X-&gt;Y (single uppercase letters)</div>
-    </div>
+    const textarea = document.getElementById("edges-input");
+    const btnSubmit = document.getElementById("btn-submit");
+    const btnClear = document.getElementById("btn-clear");
+    const loader = document.getElementById("loader");
+    const results = document.getElementById("results");
+    const emptyState = document.getElementById("state-empty");
 
-    <div class="sidebar-section">
-      <div class="sidebar-label">Examples</div>
-      <div class="examples-row">
-        <button class="ex-btn" id="ex1">
-          Basic Tree
-          <code>A→B, A→C, B→D</code>
-        </button>
-        <button class="ex-btn" id="ex2">
-          With Cycle
-          <code>A→B, B→C, C→A</code>
-        </button>
-        <button class="ex-btn" id="ex3">
-          Mixed / Complex
-          <code>multi-parent + dupes</code>
-        </button>
-      </div>
-    </div>
+    document.getElementById("ex1").addEventListener("click", () => {
+      textarea.value = "A->B, A->C, B->D, B->E, C->F";
+    });
+    document.getElementById("ex2").addEventListener("click", () => {
+      textarea.value = "A->B, B->C, C->A, D->E";
+    });
+    document.getElementById("ex3").addEventListener("click", () => {
+      textarea.value = "A->B, A->C, B->D, D->B, X->Y, X->Z, Y->W, A->B, invalid, A1->B, A->A, A->C";
+    });
 
-    <div class="sidebar-section">
-      <div class="actions-row">
-        <button class="btn-resolve" id="btn-submit">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          Run
-        </button>
-        <button class="btn-clear" id="btn-clear">Reset</button>
-      </div>
-    </div>
+    btnClear.addEventListener("click", () => {
+      textarea.value = "";
+      results.style.display = "none";
+      results.innerHTML = "";
+      emptyState.style.display = "flex";
+    });
 
-    <div class="sidebar-section" style="flex:1;">
-      <div class="sidebar-label">Identity</div>
-      <div class="identity-block">
-        <div class="id-row">
-          <span class="id-key">Name</span>
-          <span class="id-val">abhinav_11112004</span>
-        </div>
-        <div class="id-row">
-          <span class="id-key">Email</span>
-          <span class="id-val">aj4350@srmist.edu.in</span>
-        </div>
-        <div class="id-row">
-          <span class="id-key">Roll</span>
-          <span class="id-val">RA2311056030185</span>
-        </div>
-      </div>
-    </div>
-  </aside>
+    btnSubmit.addEventListener("click", async () => {
+      const raw = textarea.value.trim();
+      if (!raw) return;
 
-  <main class="main-panel" id="main-panel">
-    <div class="state-empty" id="state-empty">
-      <div class="state-empty-icon">⬡</div>
-      <p>Enter edges on the left and click <strong>Run</strong></p>
-    </div>
+      const edges = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
 
-    <div id="loader">
-      <div class="spinner"></div>
-      Processing edges…
-    </div>
+      emptyState.style.display = "none";
+      results.style.display = "none";
+      results.innerHTML = "";
+      loader.classList.add("visible");
+      btnSubmit.disabled = true;
 
-    <div id="results" style="display:none;"></div>
-  </main>
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(edges),
+        });
 
-</div>
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
 
-<script>
-  const API_URL = "/bfhl";
-
-  const textarea   = document.getElementById("edges-input");
-  const btnSubmit  = document.getElementById("btn-submit");
-  const btnClear   = document.getElementById("btn-clear");
-  const loader     = document.getElementById("loader");
-  const results    = document.getElementById("results");
-  const emptyState = document.getElementById("state-empty");
-
-  document.getElementById("ex1").addEventListener("click", () => {
-    textarea.value = "A->B, A->C, B->D, B->E, C->F";
-  });
-  document.getElementById("ex2").addEventListener("click", () => {
-    textarea.value = "A->B, B->C, C->A, D->E";
-  });
-  document.getElementById("ex3").addEventListener("click", () => {
-    textarea.value = "A->B, A->C, B->D, D->B, X->Y, X->Z, Y->W, A->B, invalid, A1->B, A->A, A->C";
-  });
-
-  btnClear.addEventListener("click", () => {
-    textarea.value = "";
-    results.style.display = "none";
-    results.innerHTML = "";
-    emptyState.style.display = "flex";
-  });
-
-  btnSubmit.addEventListener("click", async () => {
-    const raw = textarea.value.trim();
-    if (!raw) return;
-
-    const edges = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-
-    emptyState.style.display = "none";
-    results.style.display = "none";
-    results.innerHTML = "";
-    loader.classList.add("visible");
-    btnSubmit.disabled = true;
-
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(edges),
-      });
-
-      if (!res.ok) throw new Error(`Server error ${res.status}`);
-
-      const data = await res.json();
-      renderResults(data);
-    } catch (err) {
-      results.innerHTML = `<div class="error-strip">
+        const data = await res.json();
+        renderResults(data);
+      } catch (err) {
+        results.innerHTML = `<div class="error-strip">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         ${escHtml(err.message || "Could not reach the server.")}
       </div>`;
-      results.style.display = "block";
-    } finally {
-      loader.classList.remove("visible");
-      btnSubmit.disabled = false;
-    }
-  });
+        results.style.display = "block";
+      } finally {
+        loader.classList.remove("visible");
+        btnSubmit.disabled = false;
+      }
+    });
 
-  function renderResults(data) {
-    const { hierarchies = [], invalid_entries = [], duplicate_edges = [], summary = {} } = data;
-    const maxDepth = Math.max(1, ...hierarchies.filter(h => !h.has_cycle).map(h => h.depth || 1));
+    function renderResults(data) {
+      const { hierarchies = [], invalid_entries = [], duplicate_edges = [], summary = {} } = data;
+      const maxDepth = Math.max(1, ...hierarchies.filter(h => !h.has_cycle).map(h => h.depth || 1));
 
-    let html = `<div class="stats-row">
+      let html = `<div class="stats-row">
       <div class="stat">
         <div class="stat-num c">${summary.total_trees ?? hierarchies.length}</div>
         <div class="stat-info"><div class="stat-name">Trees</div></div>
@@ -751,55 +945,57 @@
       </div>
     </div>`;
 
-    if (hierarchies.length > 0) {
-      html += `<div class="sec-head">Hierarchies</div><div class="trees-wrap">`;
-      hierarchies.forEach((h, i) => { html += buildTreeCard(h, i, maxDepth); });
-      html += `</div>`;
+      if (hierarchies.length > 0) {
+        html += `<div class="sec-head">Hierarchies</div><div class="trees-wrap">`;
+        hierarchies.forEach((h, i) => { html += buildTreeCard(h, i, maxDepth); });
+        html += `</div>`;
+      }
+
+      html += `<div class="sec-head">Invalid Entries</div>`;
+      html += invalid_entries.length
+        ? `<div class="tag-wrap" style="margin-bottom:20px;">${invalid_entries.map(e => `<span class="tag tag-r">${escHtml(e)}</span>`).join("")}</div>`
+        : `<p class="none-note" style="margin-bottom:20px;">None — all entries matched the format.</p>`;
+
+      html += `<div class="sec-head">Duplicate Edges</div>`;
+      html += duplicate_edges.length
+        ? `<div class="tag-wrap" style="margin-bottom:20px;">${duplicate_edges.map(e => `<span class="tag tag-a">${escHtml(e)}</span>`).join("")}</div>`
+        : `<p class="none-note" style="margin-bottom:20px;">None — no duplicates detected.</p>`;
+
+      html += buildJsonDrawer(data);
+
+      results.innerHTML = html;
+      results.style.display = "block";
+
+      requestAnimationFrame(() => {
+        document.querySelectorAll(".depth-fill").forEach(el => {
+          el.style.width = el.dataset.pct + "%";
+        });
+      });
+
+      document.querySelectorAll(".json-drawer-head").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const body = btn.nextElementSibling;
+          body.classList.toggle("open");
+        });
+      });
     }
 
-    html += `<div class="sec-head">Invalid Entries</div>`;
-    html += invalid_entries.length
-      ? `<div class="tag-wrap" style="margin-bottom:20px;">${invalid_entries.map(e => `<span class="tag tag-r">${escHtml(e)}</span>`).join("")}</div>`
-      : `<p class="none-note" style="margin-bottom:20px;">None — all entries matched the format.</p>`;
+    function buildTreeCard(h, i, maxDepth) {
+      const cyclic = h.has_cycle;
 
-    html += `<div class="sec-head">Duplicate Edges</div>`;
-    html += duplicate_edges.length
-      ? `<div class="tag-wrap" style="margin-bottom:20px;">${duplicate_edges.map(e => `<span class="tag tag-a">${escHtml(e)}</span>`).join("")}</div>`
-      : `<p class="none-note" style="margin-bottom:20px;">None — no duplicates detected.</p>`;
-
-    html += buildJsonDrawer(data);
-    results.innerHTML = html;
-    results.style.display = "block";
-
-    requestAnimationFrame(() => {
-      document.querySelectorAll(".depth-fill").forEach(el => {
-        el.style.width = el.dataset.pct + "%";
-      });
-    });
-
-    document.querySelectorAll(".json-drawer-head").forEach(btn => {
-      btn.addEventListener("click", () => {
-        btn.nextElementSibling.classList.toggle("open");
-      });
-    });
-  }
-
-  function buildTreeCard(h, i, maxDepth) {
-    const cyclic = h.has_cycle;
-
-    const depthHtml = !cyclic && h.depth !== undefined ? (() => {
-      const pct = Math.round((h.depth / (maxDepth + 1)) * 100);
-      return `<div class="depth-bar-wrap">
+      const depthHtml = !cyclic && h.depth !== undefined ? (() => {
+        const pct = Math.round((h.depth / (maxDepth + 1)) * 100);
+        return `<div class="depth-bar-wrap">
         <span>Depth ${h.depth}</span>
         <div class="depth-track"><div class="depth-fill" data-pct="${pct}" style="width:0%"></div></div>
       </div>`;
-    })() : "";
+      })() : "";
 
-    const body = cyclic
-      ? `<div class="cycle-msg">Cycle detected — structure indeterminate</div>`
-      : buildAsciiTree(h.root, h.tree || {});
+      const body = cyclic
+        ? `<div class="cycle-msg">Cycle detected — structure indeterminate</div>`
+        : buildAsciiTree(h.root, h.tree || {});
 
-    return `<div class="tree-card ${cyclic ? "cyclic" : ""}" style="animation-delay:${i * 55}ms">
+      return `<div class="tree-card ${cyclic ? "cyclic" : ""}" style="animation-delay:${i * 55}ms">
       <div class="card-top">
         <div class="card-root">
           <div class="root-circle ${cyclic ? "cyc" : ""}">${escHtml(h.root)}</div>
@@ -815,60 +1011,61 @@
         ${body}
       </div>
     </div>`;
-  }
+    }
 
-  function buildAsciiTree(root, treeObj) {
-    let html = `<div class="tree-ascii">`;
-    html += `<span class="t-node"><span class="t-name">${escHtml(root)}</span></span>`;
-    html += renderSubs(treeObj, "");
-    html += `</div>`;
-    return html;
-  }
+    function buildAsciiTree(root, treeObj) {
+      let html = `<div class="tree-ascii">`;
+      html += `<span class="t-node"><span class="t-name">${escHtml(root)}</span></span>`;
+      html += renderSubs(treeObj, "");
+      html += `</div>`;
+      return html;
+    }
 
-  function renderSubs(subtree, prefix) {
-    const keys = Object.keys(subtree || {}).sort();
-    let out = "";
-    keys.forEach((child, i) => {
-      const last = i === keys.length - 1;
-      const conn = last ? "└── " : "├── ";
-      const nextPrefix = prefix + (last ? "    " : "│   ");
-      out += `<span class="t-node"><span class="t-conn">${escHtml(prefix + conn)}</span><span class="t-name">${escHtml(child)}</span></span>`;
-      out += renderSubs(subtree[child], nextPrefix);
-    });
-    return out;
-  }
-
-  function buildJsonDrawer(data) {
-    const raw = JSON.stringify(data, null, 2);
-    const highlighted = raw
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      .replace(/("(\\u[\dA-Fa-f]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
-        if (/^"/.test(m)) return (m.includes('":') || m.endsWith('",'))
-          ? `<span class="jk">${m}</span>`
-          : `<span class="js">${m}</span>`;
-        if (/true|false/.test(m)) return `<span class="jb">${m}</span>`;
-        if (/null/.test(m))       return `<span class="jz">${m}</span>`;
-        return `<span class="jn">${m}</span>`;
+    function renderSubs(subtree, prefix) {
+      const keys = Object.keys(subtree || {}).sort();
+      let out = "";
+      keys.forEach((child, i) => {
+        const last = i === keys.length - 1;
+        const conn = last ? "└── " : "├── ";
+        const nextPrefix = prefix + (last ? "    " : "│   ");
+        out += `<span class="t-node"><span class="t-conn">${escHtml(prefix + conn)}</span><span class="t-name">${escHtml(child)}</span></span>`;
+        out += renderSubs(subtree[child], nextPrefix);
       });
+      return out;
+    }
 
-    return `<div class="json-drawer">
+    function buildJsonDrawer(data) {
+      const raw = JSON.stringify(data, null, 2);
+      const highlighted = raw
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/("(\\u[\dA-Fa-f]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+          if (/^"/.test(m)) return (m.includes('":') || m.endsWith('",'))
+            ? `<span class="jk">${m}</span>`
+            : `<span class="js">${m}</span>`;
+          if (/true|false/.test(m)) return `<span class="jb">${m}</span>`;
+          if (/null/.test(m)) return `<span class="jz">${m}</span>`;
+          return `<span class="jn">${m}</span>`;
+        });
+
+      return `<div class="json-drawer">
       <button class="json-drawer-head">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         Raw JSON Response
       </button>
       <div class="json-body">${highlighted}</div>
     </div>`;
-  }
+    }
 
-  function escHtml(s) {
-    return String(s)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  }
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
 
-  textarea.addEventListener("keydown", e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") btnSubmit.click();
-  });
-</script>
+    textarea.addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") btnSubmit.click();
+    });
+  </script>
 </body>
+
 </html>
